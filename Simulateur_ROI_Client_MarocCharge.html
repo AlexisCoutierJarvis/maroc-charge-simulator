@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MAROC CHARGE — Simulateur ROI Client</title>
+<style>
+  :root {
+    --bg: #0d1520;
+    --panel: #152131;
+    --panel2: #1d2d42;
+    --ink: #e8edf4;
+    --muted: #94a3b8;
+    --accent: #00d4ff;
+    --accent2: #34d399;
+    --warn: #fbbf24;
+    --danger: #f87171;
+    --border: #23344d;
+    --brand: linear-gradient(135deg, #00d4ff 0%, #34d399 100%);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: radial-gradient(ellipse at top, #112033 0%, #0d1520 50%, #08101a 100%);
+    color: var(--ink);
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+  .container { max-width: 1400px; margin: 0 auto; padding: 24px 32px 80px; }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+  }
+  .logo {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo .bolt { font-size: 28px; }
+  .logo span.brand {
+    background: var(--brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .tag {
+    font-size: 12px;
+    color: var(--muted);
+    padding: 6px 12px;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.25);
+    border-radius: 100px;
+  }
+  h1 { font-size: 32px; margin: 0 0 6px; font-weight: 700; letter-spacing: -0.8px; }
+  .subtitle { color: var(--muted); margin-bottom: 28px; font-size: 15px; }
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 360px) 1fr;
+    gap: 28px;
+  }
+  @media (max-width: 1000px) { .layout { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+  .panel h3 {
+    margin: 0 0 16px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    font-weight: 700;
+  }
+
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 13px;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+  .field label .val {
+    font-weight: 700;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  input[type="number"], select {
+    width: 100%;
+    padding: 9px 12px;
+    background: var(--panel2);
+    color: var(--ink);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+  input[type="number"]:focus, select:focus { outline: 1px solid var(--accent); }
+  input[type="range"] {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    background: var(--panel2);
+    border-radius: 100px;
+    margin: 8px 0 2px;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px; height: 18px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 0 4px rgba(0,212,255,0.15);
+  }
+  .mode-toggle {
+    display: flex;
+    background: var(--panel2);
+    border-radius: 10px;
+    padding: 4px;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+  .mode-toggle button {
+    flex: 1;
+    background: transparent;
+    border: 0;
+    color: var(--muted);
+    font-size: 12px;
+    padding: 9px 6px;
+    cursor: pointer;
+    border-radius: 7px;
+    font-weight: 600;
+    transition: all .15s;
+    font-family: inherit;
+  }
+  .mode-toggle button.active {
+    background: var(--accent);
+    color: #08101a;
+  }
+  .mode-desc {
+    font-size: 12px;
+    color: var(--muted);
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    line-height: 1.45;
+    margin-bottom: 6px;
+  }
+
+  .borne-row {
+    display: grid;
+    grid-template-columns: 1fr 70px;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 8px;
+    margin-bottom: 4px;
+    font-size: 13px;
+    background: rgba(255,255,255,0.02);
+  }
+  .borne-row:hover { background: rgba(255,255,255,0.05); }
+  .borne-row .name { color: var(--ink); }
+  .borne-row .price { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .borne-row input[type="number"] {
+    padding: 6px 8px;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 700px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+  .kpi {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--brand);
+    opacity: 0.7;
+  }
+  .kpi .label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .kpi .value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.8px;
+  }
+  .kpi .value.neg { color: var(--danger); }
+  .kpi .value.warn { color: var(--warn); }
+  .kpi .value.good { color: var(--accent2); }
+  .kpi .sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .chart-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+  .chart-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0 0 4px;
+  }
+  .chart-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+  .legend {
+    display: flex;
+    gap: 18px;
+    font-size: 12px;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .legend .dot {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border-radius: 4px;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  th, td {
+    padding: 9px 10px;
+    text-align: right;
+    border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums;
+  }
+  th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; }
+  th:first-child, td:first-child { text-align: left; }
+  tr.highlight td { background: rgba(0,212,255,0.06); font-weight: 700; color: var(--accent); }
+  tr.total td { border-top: 1px solid var(--accent); color: var(--ink); font-weight: 700; }
+
+  .hint {
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 4px;
+    line-height: 1.35;
+  }
+  .footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 11.5px;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  details { margin-top: 12px; }
+  details summary {
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--accent);
+    padding: 6px 0;
+    user-select: none;
+  }
+  details[open] summary { margin-bottom: 8px; }
+
+  .action-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    background: var(--accent);
+    color: #08101a;
+    padding: 10px 16px;
+    font-weight: 700;
+    border-radius: 8px;
+    border: 0;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn.secondary {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--border);
+  }
+
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(52,211,153,0.12);
+    color: var(--accent2);
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .pill.red { background: rgba(248,113,113,0.12); color: var(--danger); }
+  .pill.yellow { background: rgba(251,191,36,0.12); color: var(--warn); }
+
+  #cashflowChart { width: 100%; height: 320px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div class="logo"><span class="bolt">⚡</span> <span class="brand">MAROC CHARGE</span></div>
+  <div class="tag">Simulateur ROI Client · v1.0</div>
+</header>
+
+<h1>Simulateur de Rentabilité — Projet de bornes de recharge</h1>
+<p class="subtitle">
+  Configurez votre projet (nombre et type de bornes, hypothèses d'exploitation) et visualisez instantanément votre ROI,
+  votre retour sur investissement et vos cash-flows sur 10 ans.
+</p>
+
+<div class="layout">
+
+  <!-- ============ LEFT PANEL: INPUTS ============ -->
+  <div>
+    <!-- Site -->
+    <div class="panel">
+      <h3>① Votre site</h3>
+      <div class="field">
+        <label for="siteName">Nom du projet / site</label>
+        <input type="text" id="siteName" value="Hôtel / Parking / Station-service" style="width:100%;padding:9px 12px;background:var(--panel2);color:var(--ink);border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;" />
+      </div>
+      <div class="field">
+        <label for="siteType">Type de site</label>
+        <select id="siteType">
+          <option value="hotel">Hôtellerie (3★–5★)</option>
+          <option value="parking">Parking commercial / Centre commercial</option>
+          <option value="station">Station-service</option>
+          <option value="entreprise">Entreprise / Campus / Flotte B2B</option>
+          <option value="residentiel">Résidentiel collectif</option>
+          <option value="autre">Autre</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Capacité électrique existante</label>
+        <select id="electricityCapacity">
+          <option value="suffisante">Suffisante (triphasé 100 kVA+) — pas de raccordement ONEE</option>
+          <option value="renforcement">Renforcement partiel nécessaire</option>
+          <option value="hta">Mise à niveau HTA requise (ONEE + transformateur)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Modèle -->
+    <div class="panel">
+      <h3>② Modèle commercial</h3>
+      <div class="mode-toggle">
+        <button id="modeOwn" class="active" onclick="setMode('own')">Achat &amp; exploitation</button>
+        <button id="modeShare" onclick="setMode('share')">Zéro CAPEX · Revenue Share</button>
+      </div>
+      <div class="mode-desc" id="modeDesc">
+        <b>Vous investissez, vous exploitez.</b> Votre site finance l'installation et encaisse 100 % des revenus des sessions de recharge. Maroc Charge livre clé-en-main, assure la maintenance sous contrat.
+      </div>
+      <div class="field" id="shareSplitField" style="display:none;">
+        <label for="shareSplit">Part des revenus pour votre site
+          <span class="val"><span id="shareSplitVal">25</span>%</span>
+        </label>
+        <input type="range" id="shareSplit" min="15" max="40" value="25" step="1" />
+        <div class="hint">Modèle B standard Maroc Charge : 20–30 % selon volume de bornes et durée d'engagement.</div>
+      </div>
+    </div>
+
+    <!-- Bornes -->
+    <div class="panel">
+      <h3>③ Bornes à installer</h3>
+      <div id="bornesList"></div>
+      <details>
+        <summary>Options complémentaires</summary>
+        <div class="field" style="margin-top:12px;">
+          <label>Terminal de paiement (CB/sans contact)</label>
+          <select id="paymentOption">
+            <option value="0">Aucun (paiement via app / RFID)</option>
+            <option value="1100">1 terminal Duo — 1 100 €</option>
+            <option value="1200">1 terminal sur piédestal — 1 200 €</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Pack mise en service + formation</label>
+          <select id="servicePack">
+            <option value="1800">Standard (MES + formation personnel + PV réception) — 1 800 €</option>
+            <option value="2400">Complet (+ formation management) — 2 400 €</option>
+          </select>
+        </div>
+      </details>
+    </div>
+
+    <!-- Exploitation -->
+    <div class="panel">
+      <h3>④ Hypothèses d'exploitation</h3>
+      <div class="field">
+        <label for="sessionsDay">Sessions par borne / jour (croisière)
+          <span class="val"><span id="sessionsDayVal">4</span></span>
+        </label>
+        <input type="range" id="sessionsDay" min="1" max="10" value="4" step="0.5" />
+        <div class="hint">Données Virta/ENGIE Vianeo : 2–3 lancement, 4–5 croisière, 6+ maturité zone commerciale.</div>
+      </div>
+      <div class="field">
+        <label for="kwhSession">Énergie moyenne par session
+          <span class="val"><span id="kwhSessionVal">30</span> kWh</span>
+        </label>
+        <input type="range" id="kwhSession" min="10" max="60" value="30" step="1" />
+        <div class="hint">AC 22 kW : ~15 kWh (charge de nuit hôtel). DC 50 kW : ~30 kWh. DC 100 kW : ~40 kWh.</div>
+      </div>
+      <div class="field">
+        <label for="tarifKwh">Tarif facturé à l'utilisateur final
+          <span class="val"><span id="tarifKwhVal">3.00</span> MAD/kWh</span>
+        </label>
+        <input type="range" id="tarifKwh" min="2" max="4.5" value="3.0" step="0.05" />
+        <div class="hint">Référence marché Maroc : 2,50–3,50 MAD/kWh. ENGIE Vianeo France : ~0,69 €/kWh (~7,4 MAD).</div>
+      </div>
+      <div class="field">
+        <label for="coutKwh">Coût d'achat électricité (ONEE — tarif VE)
+          <span class="val"><span id="coutKwhVal">0.95</span> MAD/kWh</span>
+        </label>
+        <input type="range" id="coutKwh" min="0.7" max="1.4" value="0.95" step="0.01" />
+        <div class="hint">Tarif ONEE VE préférentiel 2026 : 0,0888 €/kWh ≈ 0,95 MAD/kWh.</div>
+      </div>
+      <div class="field">
+        <label for="rampup">Montée en charge</label>
+        <select id="rampup">
+          <option value="standard" selected>Standard : 40 % An 1, 70 % An 2, 100 % dès An 3</option>
+          <option value="rapide">Rapide : 60 % An 1, 90 % An 2, 100 % dès An 3</option>
+          <option value="lente">Lente : 25 % An 1, 50 % An 2, 75 % An 3, 100 % An 4</option>
+          <option value="immediat">Immédiate : 100 % dès An 1 (zone captive / flotte)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="uptimeDays">Jours d'ouverture par an
+          <span class="val"><span id="uptimeDaysVal">350</span> jours</span>
+        </label>
+        <input type="range" id="uptimeDays" min="250" max="365" value="350" step="5" />
+      </div>
+    </div>
+
+    <!-- Financial params -->
+    <div class="panel">
+      <h3>⑤ Paramètres financiers</h3>
+      <div class="field">
+        <label for="duration">Horizon d'analyse
+          <span class="val"><span id="durationVal">10</span> ans</span>
+        </label>
+        <input type="range" id="duration" min="5" max="15" value="10" step="1" />
+        <div class="hint">Durée de vie des bornes : 10–15 ans.</div>
+      </div>
+      <div class="field">
+        <label for="discountRate">Taux d'actualisation (VAN/TRI)
+          <span class="val"><span id="discountRateVal">8</span>%</span>
+        </label>
+        <input type="range" id="discountRate" min="3" max="15" value="8" step="0.5" />
+      </div>
+      <div class="field">
+        <label for="priceInflation">Inflation annuelle tarif recharge
+          <span class="val"><span id="priceInflationVal">2</span>%</span>
+        </label>
+        <input type="range" id="priceInflation" min="0" max="6" value="2" step="0.5" />
+      </div>
+      <div class="field">
+        <label for="maintenanceContract">Contrat de maintenance</label>
+        <select id="maintenanceContract">
+          <option value="350">Maintenance préventive seule — 350 €/borne/an</option>
+          <option value="600" selected>SAV complet (95 % dispo, pièces incluses) — 600 €/borne/an</option>
+          <option value="0">Aucun (sortie de garantie assumée)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="cpmsSub">Abonnement logiciel de supervision (CPMS)</label>
+        <select id="cpmsSub">
+          <option value="280" selected>Annuel — 280 €/borne/an</option>
+          <option value="300">Mensuel — 25 €/borne (×12 = 300 €/an)</option>
+          <option value="0">Non inclus (accès direct MCE)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ RIGHT PANEL: RESULTS ============ -->
+  <div>
+
+    <!-- KPI row -->
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="label">Payback period</div>
+        <div class="value" id="kpiPayback">—</div>
+        <div class="sub" id="kpiPaybackSub">Retour sur investissement</div>
+      </div>
+      <div class="kpi">
+        <div class="label">ROI cumulé</div>
+        <div class="value" id="kpiRoi">—</div>
+        <div class="sub" id="kpiRoiSub">sur l'horizon</div>
+      </div>
+      <div class="kpi">
+        <div class="label">TRI</div>
+        <div class="value" id="kpiTri">—</div>
+        <div class="sub">Taux de rentabilité interne</div>
+      </div>
+      <div class="kpi">
+        <div class="label">VAN</div>
+        <div class="value" id="kpiVan">—</div>
+        <div class="sub" id="kpiVanSub">Valeur actuelle nette</div>
+      </div>
+    </div>
+
+    <!-- Chart: cashflow -->
+    <div class="chart-card">
+      <div class="chart-title">Cash-flow annuel &amp; cumulé</div>
+      <div class="chart-sub">Évolution de la trésorerie année par année — point d'équilibre visualisé.</div>
+      <canvas id="cashflowChart"></canvas>
+      <div class="legend" style="margin-top:14px;">
+        <div><span class="dot" style="background:#00d4ff"></span>Cash-flow annuel net</div>
+        <div><span class="dot" style="background:#34d399"></span>Cash-flow cumulé</div>
+        <div><span class="dot" style="background:#fbbf24"></span>Investissement initial</div>
+      </div>
+    </div>
+
+    <!-- Breakdown table -->
+    <div class="chart-card">
+      <div class="chart-title">Détail financier par année</div>
+      <div class="chart-sub">Vue annualisée : revenus, charges et cash-flow net.</div>
+      <div style="overflow-x:auto;">
+        <table id="yearTable">
+          <thead>
+            <tr>
+              <th>Année</th>
+              <th>Sessions</th>
+              <th>Revenus (€)</th>
+              <th>Coût énergie</th>
+              <th>OPEX</th>
+              <th>Part opérateur</th>
+              <th>Cash-flow</th>
+              <th>Cumulé</th>
+            </tr>
+          </thead>
+          <tbody id="yearTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CAPEX breakdown -->
+    <div class="chart-card">
+      <div class="chart-title">Composition de l'investissement initial</div>
+      <div class="chart-sub">Devis indicatif — devis définitif établi après audit technique du site.</div>
+      <table id="capexTable">
+        <thead>
+          <tr>
+            <th>Poste</th>
+            <th>Quantité</th>
+            <th>Prix unitaire HT</th>
+            <th>Total HT</th>
+          </tr>
+        </thead>
+        <tbody id="capexTableBody"></tbody>
+      </table>
+      <div class="hint" style="margin-top:12px;">
+        Montants indiqués en EUR HT, valeur Mars 2026. Taux de change de référence 1 EUR = 10,70 MAD.
+        Forfait mise à niveau HTA indicatif — un chiffrage précis est communiqué après audit ONEE.
+        Les frais récurrents (maintenance + logiciel CPMS) sont facturés annuellement après mise en service.
+      </div>
+    </div>
+
+    <!-- Summary / synthesis -->
+    <div class="chart-card">
+      <div class="chart-title">Synthèse projet</div>
+      <div id="summaryBox" class="mode-desc" style="background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.2);font-size:13px;line-height:1.6;"></div>
+
+      <div class="action-row">
+        <button class="btn" onclick="window.print()">🖨️ Exporter en PDF</button>
+        <button class="btn secondary" onclick="resetDefaults()">↺ Réinitialiser</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="footer">
+  MAROC CHARGE — Simulateur ROI v1.0 — Mars 2026 — Les projections sont fondées sur des hypothèses documentées
+  (ENGIE Vianeo, Virta, ONEE, Conseil de la Concurrence Maroc). Un devis ferme est remis après expertise technique
+  du site. Taux de change de référence : 1 EUR = 10,70 MAD.
+</div>
+
+</div>
+
+<script>
+/* ==========================================================
+   MAROC CHARGE — Simulateur ROI client
+   Aucune donnée interne (marges, prix d'achat, fournisseurs).
+   Toutes les valeurs proviennent de la grille de vente client.
+   ========================================================== */
+
+// ---- Catalogue bornes (PRIX DE VENTE CLIENT UNIQUEMENT) ----
+const BORNES = [
+  { id: 'ac_home',   name: 'Borne AC 22 kW — standard hôtellerie',       price: 4200,  install: 950,  type: 'AC',  defaultKwh: 15 },
+  { id: 'ac_share',  name: 'Borne AC 22 kW — pro (ISO 15118 V2G, MID)',  price: 4500,  install: 950,  type: 'AC',  defaultKwh: 15 },
+  { id: 'duo',       name: 'Station Duo 2×22 kW (2 points de charge)',    price: 8500,  install: 1500, type: 'AC',  defaultKwh: 15, points: 2 },
+  { id: 'urban',     name: 'Station Urban 2×22 kW — inox extérieur',      price: 11000, install: 1500, type: 'AC',  defaultKwh: 15, points: 2 },
+  { id: 'dc50',      name: 'Borne DC rapide 50 kW — CCS2 + CHAdeMO',      price: 15000, install: 3800, type: 'DC',  defaultKwh: 30 },
+  { id: 'dc100',     name: 'Borne DC ultra-rapide 100 kW',                price: 26000, install: 6500, type: 'DC',  defaultKwh: 40 },
+  { id: 'dc150',     name: 'Borne DC haute puissance 150+ kW (autoroute)', price: 42000, install: 9500, type: 'DC',  defaultKwh: 50 },
+];
+
+// Forfaits infrastructure (prix vente client HT €)
+const INFRA = {
+  suffisante:     { audit: 2000, genie: 2500, hta: 0,      label: 'Infrastructure S (TGBT simple — jusqu\'à 4 bornes AC)' },
+  renforcement:   { audit: 3500, genie: 4000, hta: 0,      label: 'Infrastructure M (TGBT renforcé — 6 pts de charge)' },
+  hta:            { audit: 5000, genie: 7000, hta: 45700,  label: 'Infrastructure L + raccordement HTA ONEE + transformateur' },
+};
+
+const EUR_MAD = 10.7;
+
+// ---- Render borne inputs ----
+function renderBornes() {
+  const root = document.getElementById('bornesList');
+  root.innerHTML = '';
+  BORNES.forEach(b => {
+    const row = document.createElement('div');
+    row.className = 'borne-row';
+    row.innerHTML = `
+      <div>
+        <div class="name">${b.name}</div>
+        <div class="price">${b.price.toLocaleString('fr-FR')} € HT / unité${b.points ? ' (' + b.points + ' pts)' : ''}</div>
+      </div>
+      <input type="number" min="0" max="100" value="0" data-id="${b.id}" />
+    `;
+    root.appendChild(row);
+  });
+  root.querySelectorAll('input').forEach(inp => inp.addEventListener('input', recalc));
+}
+
+// ---- Mode switch ----
+let MODE = 'own'; // 'own' or 'share'
+function setMode(m) {
+  MODE = m;
+  document.getElementById('modeOwn').classList.toggle('active', m === 'own');
+  document.getElementById('modeShare').classList.toggle('active', m === 'share');
+  document.getElementById('shareSplitField').style.display = (m === 'share') ? 'block' : 'none';
+  const desc = document.getElementById('modeDesc');
+  if (m === 'own') {
+    desc.innerHTML = '<b>Vous investissez, vous exploitez.</b> Votre site finance l\'installation et encaisse 100 % des revenus des sessions de recharge. Maroc Charge livre clé-en-main, assure la maintenance sous contrat.';
+  } else {
+    desc.innerHTML = '<b>Zéro investissement, revenus passifs.</b> Maroc Charge finance et exploite les bornes sur votre site. Vous recevez une part des revenus de chaque session, sans aucune charge opérationnelle (maintenance, logiciel, énergie pris en charge par Maroc Charge).';
+  }
+  recalc();
+}
+
+// ---- Range display binding ----
+function bindRange(id, decimals = 0) {
+  const el = document.getElementById(id);
+  const val = document.getElementById(id + 'Val');
+  const update = () => {
+    val.textContent = parseFloat(el.value).toLocaleString('fr-FR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+    recalc();
+  };
+  el.addEventListener('input', update);
+  update();
+}
+
+// ---- Core compute ----
+function compute() {
+  const rows = document.querySelectorAll('#bornesList input');
+  let nbBornes = 0, nbPoints = 0, totalBornesCost = 0, totalInstallCost = 0;
+  const selection = [];
+  rows.forEach(r => {
+    const b = BORNES.find(x => x.id === r.dataset.id);
+    const q = parseInt(r.value) || 0;
+    if (q > 0) {
+      const points = (b.points || 1) * q;
+      selection.push({ ...b, qty: q, points });
+      nbBornes += q;
+      nbPoints += points;
+      totalBornesCost += q * b.price;
+      totalInstallCost += q * b.install;
+    }
+  });
+
+  const cap = document.getElementById('electricityCapacity').value;
+  const infra = INFRA[cap];
+  const auditCost = nbBornes > 0 ? infra.audit : 0;
+  const genieCost = nbBornes > 0 ? infra.genie : 0;
+  const htaCost   = infra.hta;
+  const paymentCost = parseFloat(document.getElementById('paymentOption').value) || 0;
+  const serviceCost = nbBornes > 0 ? (parseFloat(document.getElementById('servicePack').value) || 0) : 0;
+  const cpmsSetup = nbBornes > 0 ? 800 : 0; // forfait paramétrage initial
+
+  const capex =
+      totalBornesCost + totalInstallCost + auditCost + genieCost + htaCost
+      + paymentCost + serviceCost + cpmsSetup;
+
+  // ---- Exploitation ----
+  const sessionsDay   = parseFloat(document.getElementById('sessionsDay').value);
+  const kwhSession    = parseFloat(document.getElementById('kwhSession').value);
+  const tarifKwh      = parseFloat(document.getElementById('tarifKwh').value); // MAD
+  const coutKwh       = parseFloat(document.getElementById('coutKwh').value); // MAD
+  const uptimeDays    = parseFloat(document.getElementById('uptimeDays').value);
+  const duration      = parseInt(document.getElementById('duration').value);
+  const discount      = parseFloat(document.getElementById('discountRate').value) / 100;
+  const priceInflation= parseFloat(document.getElementById('priceInflation').value) / 100;
+  const maint         = parseFloat(document.getElementById('maintenanceContract').value);
+  const cpmsAnn       = parseFloat(document.getElementById('cpmsSub').value);
+  const shareSplit    = parseFloat(document.getElementById('shareSplit').value) / 100;
+  const rampup        = document.getElementById('rampup').value;
+
+  const rampMap = {
+    standard: [0.4, 0.7, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    rapide:   [0.6, 0.9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    lente:    [0.25, 0.5, 0.75, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    immediat: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  };
+  const ramp = rampMap[rampup];
+
+  const years = [];
+  let cumulativeCF = 0;
+  let paybackYear = null;
+
+  // Initial outlay at year 0 (only in own mode)
+  const initialOutlay = (MODE === 'own') ? capex : 0;
+  cumulativeCF = -initialOutlay;
+  years.push({
+    year: 0, sessions: 0, revenueEUR: 0, energyCostEUR: 0, opexEUR: 0,
+    operatorShareEUR: 0, cashflowEUR: -initialOutlay, cumulativeEUR: cumulativeCF
+  });
+
+  for (let y = 1; y <= duration; y++) {
+    const util = ramp[Math.min(y - 1, ramp.length - 1)] ?? 1;
+    const sessionsYear = nbPoints * sessionsDay * uptimeDays * util;
+    const kwhYear = sessionsYear * kwhSession;
+    const priceFactor = Math.pow(1 + priceInflation, y - 1);
+    const revenueMAD = kwhYear * tarifKwh * priceFactor;
+    const revenueEUR = revenueMAD / EUR_MAD;
+    const energyCostMAD = kwhYear * coutKwh * Math.pow(1 + priceInflation * 0.5, y - 1); // ONEE monte moins vite
+    const energyCostEUR = energyCostMAD / EUR_MAD;
+    const opexEUR = nbBornes * (maint + cpmsAnn);
+
+    let cashflow = 0;
+    let operatorShare = 0;
+    if (MODE === 'own') {
+      // Client keeps 100% of revenue minus all costs
+      cashflow = revenueEUR - energyCostEUR - opexEUR;
+    } else {
+      // Revenue share (Modèle B) : le client reçoit shareSplit% du CA brut des sessions.
+      // Maroc Charge assume tous les coûts (ONEE, maintenance, CPMS, CAPEX).
+      cashflow = revenueEUR * shareSplit;
+      operatorShare = revenueEUR * (1 - shareSplit);
+    }
+
+    cumulativeCF += cashflow;
+    if (paybackYear === null && cumulativeCF >= 0 && MODE === 'own') paybackYear = y - 1 + (Math.abs(cumulativeCF - cashflow) / cashflow);
+
+    years.push({
+      year: y,
+      sessions: Math.round(sessionsYear),
+      revenueEUR,
+      energyCostEUR,
+      opexEUR: (MODE === 'own') ? opexEUR : 0,
+      operatorShareEUR: operatorShare,
+      cashflowEUR: cashflow,
+      cumulativeEUR: cumulativeCF,
+    });
+  }
+
+  // IRR (Newton–Raphson on NPV)
+  function npv(rate) {
+    let v = 0;
+    years.forEach(y => { v += y.cashflowEUR / Math.pow(1 + rate, y.year); });
+    return v;
+  }
+  function irr() {
+    if (MODE === 'share') return null; // no initial outlay → IRR infinite
+    let lo = -0.99, hi = 5;
+    if (npv(lo) * npv(hi) > 0) return null;
+    for (let i = 0; i < 80; i++) {
+      const mid = (lo + hi) / 2;
+      if (npv(mid) > 0) lo = mid; else hi = mid;
+    }
+    return (lo + hi) / 2;
+  }
+  const tri = irr();
+  const van = npv(discount);
+  const totalCF = cumulativeCF; // sum of all cashflows (already net of initial)
+  const totalRevenue = years.slice(1).reduce((a, b) => a + b.revenueEUR, 0);
+  const totalGain = years.slice(1).reduce((a, b) => a + b.cashflowEUR, 0); // gross gain (excludes initial)
+  const roiPct = (MODE === 'own' && capex > 0) ? (totalGain - capex) / capex * 100 : null;
+
+  return {
+    selection, nbBornes, nbPoints,
+    totalBornesCost, totalInstallCost, auditCost, genieCost, htaCost, paymentCost, serviceCost, cpmsSetup,
+    capex, years, paybackYear, tri, van, totalCF, totalRevenue, totalGain, roiPct,
+    infraLabel: infra.label, shareSplit,
+  };
+}
+
+// ---- Rendering ----
+const fmtEUR = v => (v === null || isNaN(v)) ? '—' : v.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) + ' €';
+const fmtEURshort = v => {
+  if (v === null || isNaN(v)) return '—';
+  if (Math.abs(v) >= 1e6) return (v / 1e6).toLocaleString('fr-FR', { maximumFractionDigits: 2 }) + ' M€';
+  if (Math.abs(v) >= 1e3) return (v / 1e3).toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + ' k€';
+  return v.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) + ' €';
+};
+const fmtPct = v => (v === null || isNaN(v) || !isFinite(v)) ? '—' : v.toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + ' %';
+
+function recalc() {
+  const r = compute();
+
+  // KPIs
+  const payEl = document.getElementById('kpiPayback');
+  const roiEl = document.getElementById('kpiRoi');
+  const triEl = document.getElementById('kpiTri');
+  const vanEl = document.getElementById('kpiVan');
+
+  if (r.nbBornes === 0) {
+    payEl.textContent = '—'; payEl.className = 'value';
+    roiEl.textContent = '—'; roiEl.className = 'value';
+    triEl.textContent = '—'; triEl.className = 'value';
+    vanEl.textContent = '—'; vanEl.className = 'value';
+    document.getElementById('kpiPaybackSub').textContent = 'Sélectionnez au moins une borne';
+    document.getElementById('kpiRoiSub').textContent = '';
+    document.getElementById('kpiVanSub').textContent = '';
+  } else if (MODE === 'share') {
+    payEl.textContent = 'Immédiat';
+    payEl.className = 'value good';
+    document.getElementById('kpiPaybackSub').textContent = 'Aucun investissement initial';
+    roiEl.textContent = '∞';
+    roiEl.className = 'value good';
+    document.getElementById('kpiRoiSub').textContent = 'Revenu pur (CAPEX = 0)';
+    triEl.textContent = 'N/A';
+    triEl.className = 'value';
+    vanEl.textContent = fmtEURshort(r.van);
+    vanEl.className = 'value good';
+    document.getElementById('kpiVanSub').textContent = `Cumul ${document.getElementById('durationVal').textContent} ans · tx ${document.getElementById('discountRateVal').textContent}%`;
+  } else {
+    // own mode
+    if (r.paybackYear === null || r.paybackYear > r.years.length) {
+      payEl.textContent = '> ' + (r.years.length - 1) + ' ans';
+      payEl.className = 'value warn';
+      document.getElementById('kpiPaybackSub').textContent = 'Non atteint sur l\'horizon';
+    } else {
+      payEl.textContent = r.paybackYear.toFixed(1) + ' ans';
+      payEl.className = 'value good';
+      document.getElementById('kpiPaybackSub').textContent = 'Retour sur investissement';
+    }
+    if (r.roiPct === null) {
+      roiEl.textContent = '—'; roiEl.className = 'value';
+    } else {
+      roiEl.textContent = fmtPct(r.roiPct);
+      roiEl.className = 'value ' + (r.roiPct >= 100 ? 'good' : r.roiPct >= 0 ? 'warn' : 'neg');
+      document.getElementById('kpiRoiSub').textContent = 'Sur ' + (r.years.length - 1) + ' ans';
+    }
+    if (r.tri === null || !isFinite(r.tri)) {
+      triEl.textContent = '—'; triEl.className = 'value';
+    } else {
+      triEl.textContent = fmtPct(r.tri * 100);
+      triEl.className = 'value ' + (r.tri > 0.15 ? 'good' : r.tri > 0.05 ? 'warn' : 'neg');
+    }
+    vanEl.textContent = fmtEURshort(r.van);
+    vanEl.className = 'value ' + (r.van > 0 ? 'good' : 'neg');
+    document.getElementById('kpiVanSub').textContent = `Taux d'actualisation ${document.getElementById('discountRateVal').textContent}%`;
+  }
+
+  // CAPEX table
+  const capTb = document.getElementById('capexTableBody');
+  capTb.innerHTML = '';
+  r.selection.forEach(s => {
+    capTb.innerHTML += `<tr><td>${s.name}</td><td>${s.qty}</td><td>${fmtEUR(s.price)}</td><td>${fmtEUR(s.qty * s.price)}</td></tr>`;
+    capTb.innerHTML += `<tr><td style="padding-left:22px;color:var(--muted);font-size:12px;">↳ Installation &amp; raccordement</td><td>${s.qty}</td><td>${fmtEUR(s.install)}</td><td>${fmtEUR(s.qty * s.install)}</td></tr>`;
+  });
+  if (r.nbBornes > 0) {
+    capTb.innerHTML += `<tr><td>Audit &amp; expertise du site</td><td>1</td><td>${fmtEUR(r.auditCost)}</td><td>${fmtEUR(r.auditCost)}</td></tr>`;
+    capTb.innerHTML += `<tr><td>Génie civil &amp; infrastructure électrique</td><td>1</td><td>${fmtEUR(r.genieCost)}</td><td>${fmtEUR(r.genieCost)}</td></tr>`;
+    if (r.htaCost > 0) {
+      capTb.innerHTML += `<tr><td>Mise à niveau HTA (ONEE + transformateur)</td><td>1</td><td>${fmtEUR(r.htaCost)}</td><td>${fmtEUR(r.htaCost)}</td></tr>`;
+    }
+    if (r.paymentCost > 0) capTb.innerHTML += `<tr><td>Terminal de paiement</td><td>1</td><td>${fmtEUR(r.paymentCost)}</td><td>${fmtEUR(r.paymentCost)}</td></tr>`;
+    capTb.innerHTML += `<tr><td>Mise en service &amp; formation</td><td>1</td><td>${fmtEUR(r.serviceCost)}</td><td>${fmtEUR(r.serviceCost)}</td></tr>`;
+    capTb.innerHTML += `<tr><td>Paramétrage logiciel CPMS</td><td>1</td><td>${fmtEUR(r.cpmsSetup)}</td><td>${fmtEUR(r.cpmsSetup)}</td></tr>`;
+  }
+  capTb.innerHTML += `<tr class="total"><td>TOTAL INVESTISSEMENT HT</td><td>${r.nbPoints} pts</td><td></td><td>${fmtEUR(r.capex)}</td></tr>`;
+  capTb.innerHTML += `<tr><td colspan="3" style="color:var(--muted);font-size:12px;">Équivalent MAD (1 EUR = 10,70)</td><td style="color:var(--muted);font-size:12px;">${(r.capex * EUR_MAD).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} MAD</td></tr>`;
+
+  // Year table — header adaptatif selon le mode
+  const thead = document.querySelector('#yearTable thead tr');
+  if (MODE === 'own') {
+    thead.innerHTML = `<th>Année</th><th>Sessions</th><th>Revenus</th><th>Coût énergie</th><th>OPEX</th><th>Cash-flow</th><th>Cumulé</th>`;
+  } else {
+    thead.innerHTML = `<th>Année</th><th>Sessions</th><th>Revenus bruts</th><th>Part MCE</th><th>Votre part</th><th>Cash-flow</th><th>Cumulé</th>`;
+  }
+
+  const yTb = document.getElementById('yearTableBody');
+  yTb.innerHTML = '';
+  r.years.forEach((y) => {
+    if (y.year === 0) {
+      const cols = MODE === 'own'
+        ? `<td>—</td><td>—</td><td>—</td>`
+        : `<td>—</td><td>—</td><td>—</td>`;
+      yTb.innerHTML += `<tr><td><b>An 0</b> (mise en service)</td><td>—</td>${cols}<td style="color:${y.cashflowEUR < 0 ? 'var(--danger)' : 'var(--accent2)'};">${fmtEUR(y.cashflowEUR)}</td><td>${fmtEUR(y.cumulativeEUR)}</td></tr>`;
+    } else {
+      const highlight = (r.paybackYear !== null && Math.floor(r.paybackYear) + 1 === y.year && MODE === 'own') ? ' class="highlight"' : '';
+      const cols = MODE === 'own'
+        ? `<td>${fmtEUR(y.revenueEUR)}</td><td>${fmtEUR(-y.energyCostEUR)}</td><td>${fmtEUR(-y.opexEUR)}</td>`
+        : `<td>${fmtEUR(y.revenueEUR)}</td><td>${fmtEUR(-y.operatorShareEUR)}</td><td style="color:var(--accent2);">${fmtEUR(y.cashflowEUR)}</td>`;
+      yTb.innerHTML += `<tr${highlight}><td>An ${y.year}</td><td>${y.sessions.toLocaleString('fr-FR')}</td>${cols}<td style="color:${y.cashflowEUR < 0 ? 'var(--danger)' : 'var(--accent2)'};">${fmtEUR(y.cashflowEUR)}</td><td style="color:${y.cumulativeEUR < 0 ? 'var(--danger)' : 'var(--accent2)'};">${fmtEUR(y.cumulativeEUR)}</td></tr>`;
+    }
+  });
+  const sumSessions = r.years.slice(1).reduce((a, b) => a + b.sessions, 0).toLocaleString('fr-FR');
+  const sumCF = r.totalCF + (MODE === 'own' ? r.capex : 0);
+  const totalCols = MODE === 'own'
+    ? `<td>${fmtEUR(r.totalRevenue)}</td><td colspan="2"></td>`
+    : `<td>${fmtEUR(r.totalRevenue)}</td><td colspan="2"></td>`;
+  yTb.innerHTML += `<tr class="total"><td>CUMUL</td><td>${sumSessions}</td>${totalCols}<td>${fmtEUR(sumCF)}</td><td>${fmtEUR(r.totalCF)}</td></tr>`;
+
+  // Synthesis
+  const sb = document.getElementById('summaryBox');
+  if (r.nbBornes === 0) {
+    sb.innerHTML = '<i>Sélectionnez au moins une borne dans le catalogue pour lancer la simulation.</i>';
+  } else {
+    const nbPts = r.nbPoints;
+    const sessionsYear3 = r.years[Math.min(3, r.years.length - 1)]?.sessions || 0;
+    const bornePointLbl = nbPts === 1 ? 'point de charge' : 'points de charge';
+    let core;
+    if (MODE === 'own') {
+      const pay = r.paybackYear ? (r.paybackYear.toFixed(1) + ' ans') : '> durée d\'analyse';
+      core = `Pour un investissement initial de <b>${fmtEUR(r.capex)}</b> (${(r.capex * EUR_MAD).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} MAD), votre site récupère sa mise en <b>${pay}</b> et génère <b>${fmtEUR(r.totalRevenue)}</b> de revenus cumulés sur ${r.years.length - 1} ans. Le TRI projeté est de <b>${fmtPct(r.tri ? r.tri * 100 : NaN)}</b>.`;
+    } else {
+      const totalShare = r.years.slice(1).reduce((a, b) => a + b.cashflowEUR, 0);
+      core = `<b>Zéro investissement de votre part.</b> Maroc Charge finance et exploite le réseau (CAPEX ${fmtEUR(r.capex)} porté par MCE). Votre site perçoit <b>${(r.shareSplit * 100).toFixed(0)} %</b> des revenus de recharge, soit <b>${fmtEUR(totalShare)}</b> cumulés sur ${r.years.length - 1} ans — sans aucune charge opérationnelle (maintenance, énergie, logiciel portés par MCE).`;
+    }
+    const sessionsDesc = `À l'année 3, ${r.nbBornes} bornes (${nbPts} ${bornePointLbl}) traitent <b>${sessionsYear3.toLocaleString('fr-FR')}</b> sessions / an sur votre site.`;
+    sb.innerHTML = core + '<br><br>' + sessionsDesc + '<br><br><span class="pill">' + r.infraLabel + '</span>';
+  }
+
+  drawChart(r);
+}
+
+// ---- Chart ----
+function drawChart(r) {
+  const canvas = document.getElementById('cashflowChart');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.clientWidth;
+  const H = canvas.clientHeight;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
+
+  if (r.years.length === 0 || r.nbBornes === 0) {
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Sélectionnez des bornes pour afficher le cash-flow', W / 2, H / 2);
+    return;
+  }
+
+  const pad = { l: 60, r: 30, t: 24, b: 40 };
+  const innerW = W - pad.l - pad.r;
+  const innerH = H - pad.t - pad.b;
+
+  // Data
+  const years = r.years;
+  const annual = years.map(y => y.cashflowEUR);
+  const cumul = years.map(y => y.cumulativeEUR);
+
+  const allVals = annual.concat(cumul);
+  const minV = Math.min(0, ...allVals);
+  const maxV = Math.max(0, ...allVals);
+  const span = maxV - minV;
+  const yScale = v => pad.t + innerH * (1 - (v - minV) / (span || 1));
+  const xScale = i => pad.l + innerW * (i / (years.length - 1 || 1));
+
+  // Grid + y axis
+  ctx.strokeStyle = '#1d2d42';
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'right';
+  for (let g = 0; g <= 5; g++) {
+    const v = minV + (span * g / 5);
+    const yy = yScale(v);
+    ctx.beginPath(); ctx.moveTo(pad.l, yy); ctx.lineTo(W - pad.r, yy); ctx.stroke();
+    ctx.fillText(fmtEURshort(v), pad.l - 8, yy + 4);
+  }
+  // Zero line
+  if (minV < 0) {
+    const y0 = yScale(0);
+    ctx.strokeStyle = '#475569'; ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(pad.l, y0); ctx.lineTo(W - pad.r, y0); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  // X labels
+  ctx.textAlign = 'center';
+  years.forEach((y, i) => {
+    if (years.length > 12 && i % 2 !== 0) return;
+    ctx.fillText('An ' + y.year, xScale(i), H - pad.b + 18);
+  });
+
+  // Bars: annual CF
+  const bw = Math.max(6, innerW / (years.length * 1.6));
+  years.forEach((y, i) => {
+    const x = xScale(i) - bw / 2;
+    const y0 = yScale(0);
+    const yv = yScale(y.cashflowEUR);
+    ctx.fillStyle = y.cashflowEUR < 0 ? '#fbbf24' : '#00d4ff';
+    ctx.fillRect(x, Math.min(y0, yv), bw, Math.abs(yv - y0));
+  });
+
+  // Line: cumulative
+  ctx.strokeStyle = '#34d399';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  years.forEach((y, i) => {
+    const px = xScale(i);
+    const py = yScale(y.cumulativeEUR);
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  });
+  ctx.stroke();
+
+  // Points
+  years.forEach((y, i) => {
+    const px = xScale(i);
+    const py = yScale(y.cumulativeEUR);
+    ctx.fillStyle = '#34d399';
+    ctx.beginPath(); ctx.arc(px, py, 3.5, 0, Math.PI * 2); ctx.fill();
+  });
+}
+
+// ---- Defaults / init ----
+function resetDefaults() {
+  document.getElementById('siteType').value = 'hotel';
+  document.getElementById('electricityCapacity').value = 'suffisante';
+  document.getElementById('sessionsDay').value = 4;
+  document.getElementById('kwhSession').value = 30;
+  document.getElementById('tarifKwh').value = 3.0;
+  document.getElementById('coutKwh').value = 0.95;
+  document.getElementById('uptimeDays').value = 350;
+  document.getElementById('duration').value = 10;
+  document.getElementById('discountRate').value = 8;
+  document.getElementById('priceInflation').value = 2;
+  document.getElementById('rampup').value = 'standard';
+  document.getElementById('maintenanceContract').value = '600';
+  document.getElementById('cpmsSub').value = '280';
+  document.getElementById('paymentOption').value = '0';
+  document.getElementById('servicePack').value = '1800';
+  document.getElementById('shareSplit').value = 25;
+  document.querySelectorAll('#bornesList input').forEach(r => r.value = 0);
+  // default preset: 4x DC 50 kW
+  const dc50 = document.querySelector('#bornesList input[data-id="dc50"]');
+  if (dc50) dc50.value = 4;
+  setMode('own');
+  // trigger range labels
+  ['sessionsDay', 'kwhSession', 'tarifKwh', 'coutKwh', 'uptimeDays', 'duration', 'discountRate', 'priceInflation', 'shareSplit'].forEach(i => {
+    const ev = new Event('input'); document.getElementById(i).dispatchEvent(ev);
+  });
+  recalc();
+}
+
+// ---- Boot ----
+renderBornes();
+bindRange('sessionsDay', 1);
+bindRange('kwhSession', 0);
+bindRange('tarifKwh', 2);
+bindRange('coutKwh', 2);
+bindRange('uptimeDays', 0);
+bindRange('duration', 0);
+bindRange('discountRate', 1);
+bindRange('priceInflation', 1);
+bindRange('shareSplit', 0);
+['siteType', 'electricityCapacity', 'rampup', 'maintenanceContract', 'cpmsSub', 'paymentOption', 'servicePack'].forEach(id => {
+  document.getElementById(id).addEventListener('change', recalc);
+});
+resetDefaults();
+window.addEventListener('resize', () => drawChart(compute()));
+</script>
+</body>
+</html>
